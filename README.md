@@ -1,16 +1,16 @@
-#Operations service
+# Majdoor
 
-####postman link
+#### postman link
 [Postman](sss)
 
-####build
+#### build
 1. build project with `mvn clean install`
 2. run locally with `mvn spring-boot:run`
 
-####SLAs
+#### SLAs
 
 
 
-####todos
+#### todos
 
-####known bugs
+#### known bugs
