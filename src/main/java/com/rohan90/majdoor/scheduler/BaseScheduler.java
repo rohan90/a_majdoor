@@ -1,7 +1,9 @@
 package com.rohan90.majdoor.scheduler;
 
+import com.rohan90.majdoor.db.IDBClient;
+
 public abstract class BaseScheduler {
     static final int DEFAULT_THREAD_POOL_SIZE = 1;
 
-    abstract void configure(int parralellism, long pollDelay);
+    abstract void configure(int parallelism, long pollDelay, IDBClient dbClient);
 }

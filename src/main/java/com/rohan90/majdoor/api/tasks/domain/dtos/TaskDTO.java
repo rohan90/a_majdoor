@@ -65,6 +65,18 @@ public class TaskDTO {
         return dtos;
     }
 
+    /**
+     * returns millis of value submitted
+     * <p>
+     * todo should possibly also be a epoch/cron parser?
+     *
+     * @param value
+     * @return
+     */
+    public static long getDelayInMillis(String value) {
+        return Long.valueOf(value);
+    }
+
     public long getId() {
         return id;
     }

@@ -1,15 +1,17 @@
 package com.rohan90.majdoor.scheduler;
 
 import com.rohan90.majdoor.db.IDBClient;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Component
-class DataPoller<T> extends Thread {
+public class DataPoller<T> extends Thread {
 
-    @Autowired
+    public DataPoller(IScheduler scheduler, IDBClient idbClient, long pollDelay) {
+        this.delay = pollDelay;
+        this.idbClient = idbClient;
+        this.scheduler = scheduler;
+    }
+
     IDBClient idbClient;
 
     private List<T> data;
@@ -20,8 +22,10 @@ class DataPoller<T> extends Thread {
     @Override
     public void run() {
         try {
-
             while (!stopped) {
+                if (interrupted())
+                    return;
+
                 data = (List<T>) idbClient.getTasks();
                 scheduler.runTasks();
                 sleep(delay);
@@ -39,8 +43,5 @@ class DataPoller<T> extends Thread {
         this.stopped = true;
     }
 
-    public void setup(long pollDelay, IScheduler scheduler) {
-        this.delay = pollDelay;
-        this.scheduler = scheduler;
-    }
+
 }

@@ -8,12 +8,12 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 
-public class ImmediateTask implements Runnable {
+public class ImmediateTaskRunner implements Runnable {
     private Logger LOG = LoggerFactory.getLogger(this.getClass());
 
     private final TaskDTO task;
 
-    public ImmediateTask(TaskDTO t) {
+    public ImmediateTaskRunner(TaskDTO t) {
         this.task = t;
     }
 

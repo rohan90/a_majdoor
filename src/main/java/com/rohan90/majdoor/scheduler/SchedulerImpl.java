@@ -2,10 +2,11 @@ package com.rohan90.majdoor.scheduler;
 
 import com.rohan90.majdoor.api.tasks.domain.dtos.TaskDTO;
 import com.rohan90.majdoor.api.tasks.domain.models.ScheduleType;
-import com.rohan90.majdoor.executor.ImmediateTask;
+import com.rohan90.majdoor.db.IDBClient;
+import com.rohan90.majdoor.executor.FutureTaskRunner;
+import com.rohan90.majdoor.executor.ImmediateTaskRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -23,14 +24,16 @@ public class SchedulerImpl extends BaseScheduler implements IScheduler {
     private int poolSize = DEFAULT_THREAD_POOL_SIZE;
     private ScheduledExecutorService executor;
 
-    @Autowired
-    DataPoller poller;
+    private DataPoller poller;
+    private long pollDelay;
+    private IDBClient dbClient;
 
 
     @Override
-    public void configure(int parralellism, long pollDelay) {
+    public void configure(int parralellism, long pollDelay, IDBClient dbClient) {
         poolSize = parralellism;
-        poller.setup(pollDelay, this);
+        this.pollDelay = pollDelay;
+        this.dbClient = dbClient;
     }
 
 
@@ -41,6 +44,8 @@ public class SchedulerImpl extends BaseScheduler implements IScheduler {
 
     @Override
     public void start() {
+        poller = new DataPoller(this, dbClient, pollDelay);
+        poller.setName(name + "-poller");
         poller.start();
         executor = Executors.newScheduledThreadPool(poolSize);
         LOG.info("started scheduler {}, time is ", this.name, new Date());
@@ -50,6 +55,7 @@ public class SchedulerImpl extends BaseScheduler implements IScheduler {
     @Override
     public void stop() {
         poller.stopPolling();
+        poller.interrupt();
         executor.shutdown();
     }
 
@@ -63,7 +69,11 @@ public class SchedulerImpl extends BaseScheduler implements IScheduler {
 
         tasks.forEach(t -> {
             if (ScheduleType.IMMEDIATE.equals(t.getScheduleMeta().getType()))
-                executor.schedule(new ImmediateTask(t), 1, TimeUnit.SECONDS);
+                executor.schedule(new ImmediateTaskRunner(t), 1, TimeUnit.SECONDS);
+            else {
+                long delay = TaskDTO.getDelayInMillis(t.getScheduleMeta().getValue());
+                executor.schedule(new FutureTaskRunner(t), delay, TimeUnit.SECONDS);
+            }
         });
     }
 }
