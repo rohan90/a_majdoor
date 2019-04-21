@@ -1,16 +1,28 @@
 # Majdoor
 
 #### postman link
-[Postman](sss)
+[Postman](https://www.getpostman.com/collections/928aa000f2cbd1e70a14)
 
 #### build
 1. build project with `mvn clean install`
-2. run locally with `mvn spring-boot:run`
+2. run locally with `mvn spring-boot:run -Pdev`
 
 #### SLAs
+1. Api - rest-apis for creating and getting tasks
+2. Scheduler - module for scheduling and polling tasks to shchedule
+3. db - in_memory and persistence implementations/stubs
+        which help in storing and coordinating an execution cache.
+4. executors - various task type operators and their executors(runners)
+5. *.properties file - changing no of nodes, pollDelay, poolSize for schedulers.
 
-
-
+6. Tests
+    1. integration tests
+        - api
+        - scheduler
+    2. sanity test
+        - an overall sanity of the system validated by apis.
 #### todos
+1. possibly attach a real sql instance instead of h2-console (in memory, very lazy, just need to implement spring jdbc for staging/prod profile)
+2. master - child task. (for now theirs just one task template, no master/child)
 
 #### known bugs
