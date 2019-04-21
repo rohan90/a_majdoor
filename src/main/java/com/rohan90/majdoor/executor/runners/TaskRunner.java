@@ -1,17 +1,15 @@
 package com.rohan90.majdoor.executor.runners;
 
 import com.rohan90.majdoor.api.tasks.domain.dtos.TaskDTO;
-import org.springframework.context.ApplicationEventPublisher;
+import com.rohan90.majdoor.scheduler.SchedulerImpl;
 
 public abstract class TaskRunner implements Runnable {
+    protected SchedulerImpl scheduler;
     protected TaskDTO task;
-    protected String schedulerName;
-    protected ApplicationEventPublisher publisher;
 
-    public TaskRunner(TaskDTO task, String schedulerName, ApplicationEventPublisher publisher) {
+    public TaskRunner(TaskDTO task, SchedulerImpl scheduler) {
         this.task = task;
-        this.schedulerName = schedulerName;
-        this.publisher = publisher;
+        this.scheduler = scheduler;
     }
 
     @Override

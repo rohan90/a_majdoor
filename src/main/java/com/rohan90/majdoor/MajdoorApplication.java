@@ -2,10 +2,12 @@ package com.rohan90.majdoor;
 
 import com.rohan90.majdoor.scheduler.IScheduler;
 import com.rohan90.majdoor.scheduler.SchedulerConfig;
+import com.rohan90.majdoor.scheduler.SchedulerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -28,8 +30,8 @@ public class MajdoorApplication {
 class AppStartupRunner implements ApplicationRunner {
     private Logger LOG = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    IScheduler scheduler;
+    private @Autowired
+    AutowireCapableBeanFactory beanFactory;
 
     @Autowired
     SchedulerConfig config;
@@ -48,7 +50,9 @@ class AppStartupRunner implements ApplicationRunner {
 
         int nodes = config.getNodes();
         for (int i = 0; i < nodes; i++) {
-            scheduler.identity("scheduler-" + UUID.randomUUID().toString());
+            IScheduler scheduler = new SchedulerImpl();
+            beanFactory.autowireBean(scheduler);
+            scheduler.identity("scheduler-" + i + "-" + UUID.randomUUID().toString());
             scheduler.configure(config.getParallelism(), TimeUnit.SECONDS.toMillis(config.getPollDelay()));
             scheduler.start();
         }

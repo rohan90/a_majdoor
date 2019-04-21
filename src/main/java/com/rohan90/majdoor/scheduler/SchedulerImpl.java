@@ -10,8 +10,6 @@ import com.rohan90.majdoor.scheduler.events.TaskUpdateStatusEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -22,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 
 @Component
-public class SchedulerImpl implements IScheduler, ApplicationListener<TaskUpdateStatusEvent> {
+public class SchedulerImpl implements IScheduler {
     private Logger LOG = LoggerFactory.getLogger(this.getClass());
 
     private String name;
@@ -35,10 +33,6 @@ public class SchedulerImpl implements IScheduler, ApplicationListener<TaskUpdate
     private IDbClient dbClient;
     @Autowired
     private ICacheClient cacheClient;
-
-    @Autowired
-    ApplicationEventPublisher publisher;
-
 
     @Override
     public void configure(int parallelism, long pollDelay) {
@@ -90,6 +84,14 @@ public class SchedulerImpl implements IScheduler, ApplicationListener<TaskUpdate
         scheduleOrRunTasks();
     }
 
+    @Override
+    public void updateTask(TaskUpdateStatusEvent event) {
+        LOG.info("Received application update event {} ", event);
+        TaskDTO task = event.getTask();
+        dbClient.updateTaskStatus(event.getStatus(), task.getId());
+        cacheClient.remove(String.valueOf(task.getId()));
+    }
+
     private void scheduleOrRunTasks() {
         List<TaskDTO> tasks = poller.getTasks();
 
@@ -97,10 +99,10 @@ public class SchedulerImpl implements IScheduler, ApplicationListener<TaskUpdate
             if (!cacheClient.contains(String.valueOf(t.getId()))) {
 
                 if (ScheduleType.IMMEDIATE.equals(t.getScheduleMeta().getType())) {
-                    executor.schedule(new ImmediateTaskRunner(t, name, publisher), 1, TimeUnit.SECONDS);//executing immediate tasks with a delay of 1 second
+                    executor.schedule(new ImmediateTaskRunner(t, this), 1, TimeUnit.SECONDS);//executing immediate tasks with a delay of 1 second
                 } else {
                     long delay = TaskDTO.getDelayInMillis(t.getScheduleMeta().getValue());
-                    executor.schedule(new FutureTaskRunner(t, name, publisher), delay, TimeUnit.SECONDS);
+                    executor.schedule(new FutureTaskRunner(t, this), delay, TimeUnit.SECONDS);
                 }
 
                 cacheClient.put(String.valueOf(t.getId()), t);
@@ -109,16 +111,5 @@ public class SchedulerImpl implements IScheduler, ApplicationListener<TaskUpdate
             }
 
         });
-    }
-
-    @Override
-    public void onApplicationEvent(TaskUpdateStatusEvent event) {
-        if (name.equalsIgnoreCase(event.getSchedulerName())) {
-            LOG.info("Received application update event {} ", event);
-            TaskDTO task = event.getTask();
-            dbClient.updateTaskStatus(event.getStatus(), task.getId());
-            cacheClient.remove(String.valueOf(task.getId()));
-        }
-
     }
 }
