@@ -1,10 +1,10 @@
 package com.rohan90.majdoor.utils;
 
 import com.rohan90.majdoor.api.tasks.domain.dtos.CreateTaskDTO;
-import com.rohan90.majdoor.api.tasks.domain.dtos.TaskOperatorDTO;
 import com.rohan90.majdoor.api.tasks.domain.dtos.ScheduleMetaDTO;
-import com.rohan90.majdoor.api.tasks.domain.models.ScheduleType;
+import com.rohan90.majdoor.api.tasks.domain.dtos.TaskOperatorDTO;
 import com.rohan90.majdoor.api.tasks.domain.dtos.UserDTO;
+import com.rohan90.majdoor.api.tasks.domain.models.ScheduleType;
 import com.rohan90.majdoor.executor.operators.OperatorType;
 
 public class MockData {

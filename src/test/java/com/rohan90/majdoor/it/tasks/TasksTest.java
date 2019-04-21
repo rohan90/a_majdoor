@@ -32,7 +32,7 @@ public class TasksTest extends BaseAPITest {
 
         Assert.assertEquals(201, response.getStatusCode());
         TaskDTO createdTask = RestParser.getTaskDTO(response);
-        TaskAssertions.assertTaskCreated(createTaskPayload,createdTask);
+        TaskAssertions.assertTaskCreated(createTaskPayload, createdTask);
     }
 
     @Test
@@ -59,21 +59,21 @@ public class TasksTest extends BaseAPITest {
                 .post(ApiConstants.Tasks.CREATE);
         Assert.assertEquals(400, response.getStatusCode());
 
-        createTaskPayload.setCreatedBy(new UserDTO("some user",1));
+        createTaskPayload.setCreatedBy(new UserDTO("some user", 1));
         response = RestWrapper
                 .given()
                 .body(createTaskPayload)
                 .post(ApiConstants.Tasks.CREATE);
         Assert.assertEquals(400, response.getStatusCode());
 
-        createTaskPayload.setOperator(new TaskOperatorDTO(OperatorType.PRINT,"hello"));
+        createTaskPayload.setOperator(new TaskOperatorDTO(OperatorType.PRINT, "hello"));
         response = RestWrapper
                 .given()
                 .body(createTaskPayload)
                 .post(ApiConstants.Tasks.CREATE);
         Assert.assertEquals(400, response.getStatusCode());
 
-        createTaskPayload.setScheduleMeta(new ScheduleMetaDTO(ScheduleType.IMMEDIATE,"0"));
+        createTaskPayload.setScheduleMeta(new ScheduleMetaDTO(ScheduleType.IMMEDIATE, "0"));
         response = RestWrapper
                 .given()
                 .body(createTaskPayload)
@@ -81,7 +81,7 @@ public class TasksTest extends BaseAPITest {
         Assert.assertEquals(201, response.getStatusCode());
 
         TaskDTO createdTask = RestParser.getTaskDTO(response);
-        TaskAssertions.assertTaskCreated(createTaskPayload,createdTask);
+        TaskAssertions.assertTaskCreated(createTaskPayload, createdTask);
 
     }
 
@@ -106,6 +106,6 @@ public class TasksTest extends BaseAPITest {
 
         Assert.assertEquals(200, response.getStatusCode());
         List<TaskDTO> tasks = RestParser.getTaskDTOs(response);
-        Assert.assertEquals(TASKS_TO_CREATE_COUNT,tasks.size());
+        Assert.assertEquals(TASKS_TO_CREATE_COUNT, tasks.size());
     }
 }

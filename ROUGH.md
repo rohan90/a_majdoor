@@ -1,10 +1,6 @@
 ##Just a dump for thoughts so as to not loose focus/track
 
-scheduler
-	base
-		register itself along with possible nodes.
-		the nodes run the executors.
-	api
+api
 		1. create task with payload () (possibly with schedulerId)
 		2. get tasks
 			1. all
@@ -13,6 +9,11 @@ scheduler
 					id,name,description
 					type (immediate/cron)
 					operation?
+					
+scheduler
+	base
+		register itself along with possible nodes.
+		the nodes run the executors.
 	presence
 		consumer/producers
 			1. getting all tasks from repo
