@@ -14,19 +14,33 @@ import java.util.WeakHashMap;
 public class CustomCacheClient implements ICacheClient {
     static Map<String, Object> cache = Collections.synchronizedMap(new WeakHashMap<String, Object>());
 
+    @Override
     public Object get(String key) {
         return cache.get(key);
     }
 
+    @Override
     public void put(String key, Object value) {
         cache.put(key, value);
     }
 
+    @Override
+    public void remove(String key) {
+        cache.remove(key);
+    }
+
+    @Override
     public void clear() {
         cache.clear();
     }
 
+    @Override
     public boolean contains(String key) {
         return cache.containsKey(key);
+    }
+
+    @Override
+    public int count() {
+        return cache.size();
     }
 }

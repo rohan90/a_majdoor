@@ -2,14 +2,16 @@ package com.rohan90.majdoor.scheduler;
 
 import com.rohan90.majdoor.api.tasks.domain.dtos.TaskDTO;
 import com.rohan90.majdoor.api.tasks.domain.models.ScheduleType;
-import com.rohan90.majdoor.db.in_memory.CustomCacheClient;
 import com.rohan90.majdoor.db.in_memory.ICacheClient;
 import com.rohan90.majdoor.db.persistence.IDbClient;
-import com.rohan90.majdoor.executor.FutureTaskRunner;
-import com.rohan90.majdoor.executor.ImmediateTaskRunner;
+import com.rohan90.majdoor.executor.runners.FutureTaskRunner;
+import com.rohan90.majdoor.executor.runners.ImmediateTaskRunner;
+import com.rohan90.majdoor.scheduler.events.TaskUpdateStatusEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -20,22 +22,33 @@ import java.util.concurrent.TimeUnit;
 
 
 @Component
-public class SchedulerImpl extends BaseScheduler implements IScheduler {
+public class SchedulerImpl implements IScheduler, ApplicationListener<TaskUpdateStatusEvent> {
     private Logger LOG = LoggerFactory.getLogger(this.getClass());
 
     private String name;
     private int poolSize = DEFAULT_THREAD_POOL_SIZE;
     private ScheduledExecutorService executor;
 
-    private DataPoller poller;
     private long pollDelay;
+    private DataPoller poller;
+    @Autowired
     private IDbClient dbClient;
+    @Autowired
     private ICacheClient cacheClient;
+
+    @Autowired
+    ApplicationEventPublisher publisher;
 
 
     @Override
+    public void configure(int parallelism, long pollDelay) {
+        this.poolSize = parallelism;
+        this.pollDelay = pollDelay;
+    }
+
+    @Override
     public void configure(int parallelism, long pollDelay, IDbClient dbClient, ICacheClient cacheClient) {
-        poolSize = parallelism;
+        this.poolSize = parallelism;
         this.pollDelay = pollDelay;
         this.dbClient = dbClient;
         this.cacheClient = cacheClient;
@@ -56,7 +69,6 @@ public class SchedulerImpl extends BaseScheduler implements IScheduler {
         executor = Executors.newScheduledThreadPool(poolSize);
 
         LOG.info("started scheduler {}, time is ", this.name, new Date());
-
     }
 
     @Override
@@ -80,10 +92,10 @@ public class SchedulerImpl extends BaseScheduler implements IScheduler {
             if (!cacheClient.contains(String.valueOf(t.getId()))) {
 
                 if (ScheduleType.IMMEDIATE.equals(t.getScheduleMeta().getType())) {
-                    executor.schedule(new ImmediateTaskRunner(t), 1, TimeUnit.SECONDS);//executing immediate tasks with a delay of 1 second
+                    executor.schedule(new ImmediateTaskRunner(t, name, publisher), 1, TimeUnit.SECONDS);//executing immediate tasks with a delay of 1 second
                 } else {
                     long delay = TaskDTO.getDelayInMillis(t.getScheduleMeta().getValue());
-                    executor.schedule(new FutureTaskRunner(t), delay, TimeUnit.SECONDS);
+                    executor.schedule(new FutureTaskRunner(t, name, publisher), delay, TimeUnit.SECONDS);
                 }
 
                 cacheClient.put(String.valueOf(t.getId()), t);
@@ -92,5 +104,16 @@ public class SchedulerImpl extends BaseScheduler implements IScheduler {
             }
 
         });
+    }
+
+    @Override
+    public void onApplicationEvent(TaskUpdateStatusEvent event) {
+        if (name.equalsIgnoreCase(event.getSchedulerName())) {
+            LOG.info("Received application update event {} ", event);
+            TaskDTO task = event.getTask();
+            dbClient.updateTaskStatus(event.getStatus(), task.getId());
+            cacheClient.remove(String.valueOf(task.getId()));
+        }
+
     }
 }

@@ -1,6 +1,7 @@
 package com.rohan90.majdoor.db.persistence;
 
 import com.rohan90.majdoor.api.tasks.domain.dtos.TaskDTO;
+import com.rohan90.majdoor.api.tasks.domain.models.TaskStatus;
 
 import java.util.List;
 
@@ -14,4 +15,6 @@ public interface IDbClient {
      * @return
      */
     List<TaskDTO> getPendingTasks();
+
+    void updateTaskStatus(TaskStatus status, Long taskId);
 }

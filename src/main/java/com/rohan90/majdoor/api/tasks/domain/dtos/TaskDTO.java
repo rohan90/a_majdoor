@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rohan90.majdoor.api.tasks.domain.entity.Task;
 import com.rohan90.majdoor.api.tasks.domain.models.TaskStatus;
 
+import javax.swing.text.html.parser.Entity;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

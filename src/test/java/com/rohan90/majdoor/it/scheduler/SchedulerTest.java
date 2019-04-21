@@ -4,6 +4,7 @@ import com.rohan90.majdoor.api.ApiConstants;
 import com.rohan90.majdoor.api.tasks.ITaskRepository;
 import com.rohan90.majdoor.api.tasks.domain.dtos.CreateTaskDTO;
 import com.rohan90.majdoor.api.tasks.domain.dtos.ScheduleMetaDTO;
+import com.rohan90.majdoor.api.tasks.domain.dtos.TaskDTO;
 import com.rohan90.majdoor.api.tasks.domain.models.ScheduleType;
 import com.rohan90.majdoor.api.utils.rest.RestWrapper;
 import com.rohan90.majdoor.db.in_memory.CustomCacheClient;
@@ -18,6 +19,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class SchedulerTest extends BaseAPITest {
@@ -62,6 +64,10 @@ public class SchedulerTest extends BaseAPITest {
 
 
         sleep(TimeUnit.SECONDS.toMillis(15));
+
+        List<TaskDTO> pendingTasks = dbClient.getPendingTasks();
+        Assert.assertTrue(pendingTasks.isEmpty());
+        Assert.assertTrue(cacheClient.count() == 0);
     }
 
     @Test
@@ -82,6 +88,10 @@ public class SchedulerTest extends BaseAPITest {
 
 
         sleep(TimeUnit.SECONDS.toMillis(15));
+
+        List<TaskDTO> pendingTasks = dbClient.getPendingTasks();
+        Assert.assertTrue(pendingTasks.isEmpty());
+        Assert.assertTrue(cacheClient.count() == 0);
     }
 
 
@@ -109,6 +119,10 @@ public class SchedulerTest extends BaseAPITest {
 
 
         sleep(TimeUnit.SECONDS.toMillis(15));
+
+        List<TaskDTO> pendingTasks = dbClient.getPendingTasks();
+        Assert.assertTrue(pendingTasks.isEmpty());
+        Assert.assertTrue(cacheClient.count() == 0);
     }
 
     private void sleep(long millis) {
