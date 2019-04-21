@@ -61,6 +61,11 @@ public class SchedulerImpl implements IScheduler, ApplicationListener<TaskUpdate
     }
 
     @Override
+    public String identify() {
+        return this.name;
+    }
+
+    @Override
     public void start() {
         poller = new DataPoller(this, dbClient, pollDelay);
         poller.setName(name + "-poller");

@@ -5,15 +5,27 @@ import com.rohan90.majdoor.scheduler.SchedulerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.stereotype.Component;
 
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @SpringBootApplication
-public class MajdoorApplication implements ApplicationRunner {
+public class MajdoorApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(MajdoorApplication.class, args);
+    }
+
+}
+
+@Component
+class AppStartupRunner implements ApplicationRunner {
     private Logger LOG = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
@@ -22,20 +34,32 @@ public class MajdoorApplication implements ApplicationRunner {
     @Autowired
     SchedulerConfig config;
 
-    public static void main(String[] args) {
-        SpringApplication.run(MajdoorApplication.class, args);
-    }
+    @Value("${spring.profiles.active}")
+    private String activeProfile;
 
     @Override
-    public void run(ApplicationArguments args) throws Exception {
-        LOG.info("Stareted application and now intializing schedulers...");
+    public void run(ApplicationArguments args) {
+        LOG.info("Started application and now intializing schedulers...");
+
+        if (!config.isValid() && !isTestEnvironment()) {
+            LOG.info("Failed to start application please set properties for majdoor...");
+            throw new RuntimeException("Please provide valid scheduler details in properties file eg, nodes,parrelism,pollDelay");
+        }
 
         int nodes = config.getNodes();
         for (int i = 0; i < nodes; i++) {
             scheduler.identity("scheduler-" + UUID.randomUUID().toString());
-            scheduler.configure(config.getParallelism(),config.getPollDelay());
+            scheduler.configure(config.getParallelism(), TimeUnit.SECONDS.toMillis(config.getPollDelay()));
             scheduler.start();
         }
+    }
 
+    //dont like this, but my test environment was requesting profile for scheduler setup
+    //which i did not want to do as i want to create scenarious for my scheduler.
+    //for now doing it this way
+    private boolean isTestEnvironment() {
+        return activeProfile.equalsIgnoreCase("test");
     }
 }
+
+

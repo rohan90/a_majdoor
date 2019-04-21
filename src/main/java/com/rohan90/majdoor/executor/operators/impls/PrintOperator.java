@@ -1,4 +1,7 @@
-package com.rohan90.majdoor.executor.operators;
+package com.rohan90.majdoor.executor.operators.impls;
+
+import com.rohan90.majdoor.executor.operators.BaseOperator;
+import com.rohan90.majdoor.executor.operators.OperatorType;
 
 public class PrintOperator<String> extends BaseOperator<String> {
     public PrintOperator(String value) {
@@ -13,7 +16,7 @@ public class PrintOperator<String> extends BaseOperator<String> {
     }
 
     @Override
-    OperatorType type() {
+    protected OperatorType type() {
         return OperatorType.PRINT;
     }
 }

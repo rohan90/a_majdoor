@@ -1,10 +1,14 @@
 package com.rohan90.majdoor.scheduler;
 
 import com.rohan90.majdoor.db.persistence.IDbClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 public class DataPoller<T> extends Thread {
+    private Logger LOG = LoggerFactory.getLogger(this.getClass());
+
 
     private List<T> data;
 
@@ -27,6 +31,7 @@ public class DataPoller<T> extends Thread {
                 if (interrupted())
                     return;
 
+                LOG.info("\nScheduler {}, Starting to poll db for data...", scheduler.identify());
                 data = (List<T>) dbClient.getPendingTasks();
                 scheduler.runTasks();
                 sleep(delay);

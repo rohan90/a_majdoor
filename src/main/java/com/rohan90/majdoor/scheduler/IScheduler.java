@@ -10,11 +10,13 @@ public interface IScheduler {
 
     void configure(int parallelism, long pollDelay, IDbClient dbClient, ICacheClient cacheClient);
 
+    void identity(String name);
+
+    String identify();
+
     void start();
 
     void stop();
-
-    void identity(String name);
 
     void runTasks();
 }

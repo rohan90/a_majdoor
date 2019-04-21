@@ -1,6 +1,7 @@
 package com.rohan90.majdoor.executor.operators;
 
 import com.rohan90.majdoor.api.tasks.domain.dtos.TaskOperatorDTO;
+import com.rohan90.majdoor.executor.operators.impls.PrintOperator;
 
 public class OperatorFactory {
     public static Operator get(TaskOperatorDTO operator) {
