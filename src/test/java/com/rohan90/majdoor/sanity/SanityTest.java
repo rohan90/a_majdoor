@@ -68,6 +68,7 @@ public class SanityTest extends BaseAPITest {
          *          executing: [],
          *          flagged: []
          *      }
+         * 4. create an SMS task and check dashboard api for counts and byStatus adherence again.
          */
 
         //setup:
@@ -147,6 +148,29 @@ public class SanityTest extends BaseAPITest {
         Assert.assertEquals(5, result.getCount());
         Assert.assertEquals(5, result.getByStatus().get(TaskStatus.COMPLETED).size());
         Assert.assertEquals(0, result.getByStatus().get(TaskStatus.CREATED).size());
+
+        //an addition sms task after everything is done...
+        //this will always fail (in current implementation of project)
+        CreateTaskDTO smsTaskPayload = MockData.getCreateTaskDTO();
+        smsTaskPayload.setOperator(MockData.getSmsOperatorDTO());
+        response = RestWrapper
+                .given()
+                .body(smsTaskPayload)
+                .post(ApiConstants.Tasks.CREATE);
+        Assert.assertEquals(201, response.getStatusCode());
+
+        //wait for 5 seconds and then check
+        sleep(TimeUnit.SECONDS.toMillis(10));
+        dashboardResponse = RestWrapper
+                .given()
+                .get(ApiConstants.Tasks.GET_DASHBOARD);
+        LOG.info("get  task dashboard response {}", dashboardResponse.asString());
+        Assert.assertEquals(200, dashboardResponse.getStatusCode());
+        result = RestParser.getTaskDashboardDTO(dashboardResponse);
+        Assert.assertEquals(6, result.getCount());
+        Assert.assertEquals(5, result.getByStatus().get(TaskStatus.COMPLETED).size());
+        Assert.assertEquals(0, result.getByStatus().get(TaskStatus.CREATED).size());
+        Assert.assertEquals(1, result.getByStatus().get(TaskStatus.FAILED).size());
 
         List<TaskDTO> pendingTasks = dbClient.getPendingTasks();
         Assert.assertTrue(pendingTasks.isEmpty());

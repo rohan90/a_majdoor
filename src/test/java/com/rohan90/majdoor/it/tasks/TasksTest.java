@@ -108,4 +108,20 @@ public class TasksTest extends BaseAPITest {
         List<TaskDTO> tasks = RestParser.getTaskDTOs(response);
         Assert.assertEquals(TASKS_TO_CREATE_COUNT, tasks.size());
     }
+
+
+    @Test
+    public void shouldBeAbleToCreateAnSMSTask() {
+        CreateTaskDTO createTaskPayload = MockData.getCreateTaskDTO();
+        createTaskPayload.setOperator(MockData.getSmsOperatorDTO());
+        Response response = RestWrapper
+                .given()
+                .body(createTaskPayload)
+                .post(ApiConstants.Tasks.CREATE);
+        LOG.info("creating task response {}", response.asString());
+
+        Assert.assertEquals(201, response.getStatusCode());
+        TaskDTO createdTask = RestParser.getTaskDTO(response);
+        TaskAssertions.assertTaskCreated(createTaskPayload, createdTask);
+    }
 }

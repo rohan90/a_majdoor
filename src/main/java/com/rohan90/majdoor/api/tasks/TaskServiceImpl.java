@@ -59,10 +59,16 @@ public class TaskServiceImpl implements ITaskService {
                 .filter(task -> TaskStatus.COMPLETED.equals(task.getStatus()))
                 .map(task -> TaskDTO.transformToDTO(task))
                 .collect(Collectors.toList());
+        List<TaskDTO> failed = all
+                .stream()
+                .filter(task -> TaskStatus.FAILED.equals(task.getStatus()))
+                .map(task -> TaskDTO.transformToDTO(task))
+                .collect(Collectors.toList());
 
         HashMap<TaskStatus, List<TaskDTO>> byStatus = new HashMap<>();
         byStatus.put(TaskStatus.CREATED, created);
         byStatus.put(TaskStatus.COMPLETED, completed);
+        byStatus.put(TaskStatus.FAILED, failed);
 
         dto.setByStatus(byStatus);
 

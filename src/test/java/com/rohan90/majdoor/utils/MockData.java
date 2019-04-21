@@ -1,9 +1,6 @@
 package com.rohan90.majdoor.utils;
 
-import com.rohan90.majdoor.api.tasks.domain.dtos.CreateTaskDTO;
-import com.rohan90.majdoor.api.tasks.domain.dtos.ScheduleMetaDTO;
-import com.rohan90.majdoor.api.tasks.domain.dtos.TaskOperatorDTO;
-import com.rohan90.majdoor.api.tasks.domain.dtos.UserDTO;
+import com.rohan90.majdoor.api.tasks.domain.dtos.*;
 import com.rohan90.majdoor.api.tasks.domain.models.ScheduleType;
 import com.rohan90.majdoor.executor.operators.OperatorType;
 
@@ -16,6 +13,13 @@ public class MockData {
         data.setDescription("Mock description "+timestamp);
         data.setScheduleMeta(new ScheduleMetaDTO(ScheduleType.IMMEDIATE,String.valueOf(0)));
         data.setOperator(new TaskOperatorDTO(OperatorType.PRINT,"hello world"));
+        return data;
+    }
+
+    public static TaskOperatorDTO getSmsOperatorDTO() {
+        TaskOperatorDTO data = new TaskOperatorDTO();
+        data.setType(OperatorType.SMS);
+        data.setValue(new SmsOperatorPayload("Some message","99999999"));
         return data;
     }
 }

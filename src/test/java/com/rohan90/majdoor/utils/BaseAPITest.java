@@ -42,7 +42,7 @@ public class BaseAPITest {
     }
 
     @Test
-    public void test(){
+    public void pseudoTest() {
         //dummy test to prevent
         //initializationError »  No runnable methods
         // todo figure out a way to prevent this or move BaseApi out of TestScope

@@ -1,7 +1,11 @@
 package com.rohan90.majdoor.utils.validators;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rohan90.majdoor.api.tasks.domain.dtos.*;
 import com.rohan90.majdoor.api.tasks.domain.models.TaskStatus;
+import com.rohan90.majdoor.executor.operators.OperatorType;
+
+import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -30,7 +34,25 @@ public class TaskAssertions {
     }
 
     private static void assertTaskOperatorIsSame(TaskOperatorDTO o1, TaskOperatorDTO o2) {
+        //todo extract this into more , maybe a switch
         assertEquals(o1.getType(), o2.getType());
-        assertEquals(o1.getValue(), o2.getValue());
+
+        //assertingOperatorPayloads
+        //todo find a better way to do this T_T
+        if (o1.getValue().equals(OperatorType.PRINT)) {
+            assertEquals(o1.getValue(), o2.getValue());
+        } else if (o1.getType().equals(OperatorType.SMS)) {
+            SmsOperatorPayload v1 = (SmsOperatorPayload) o1.getValue();
+            try {
+                String o2Json = new ObjectMapper().writeValueAsString(o2.getValue());
+                o2.setValue(new ObjectMapper().readValue(o2Json, SmsOperatorPayload.class));
+                SmsOperatorPayload v2 = (SmsOperatorPayload) o2.getValue();
+                assertEquals(v1.getMessage(), v2.getMessage());
+                assertEquals(v1.getPhoneNumber(), v2.getPhoneNumber());
+            } catch (IOException e) {
+                e.printStackTrace();
+                throw new RuntimeException("parsing operator failure");
+            }
+        }
     }
 }

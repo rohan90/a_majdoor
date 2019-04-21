@@ -1,11 +1,12 @@
 package com.rohan90.majdoor.api.tasks.domain.dtos;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rohan90.majdoor.api.tasks.domain.entity.Task;
 import com.rohan90.majdoor.api.tasks.domain.models.TaskStatus;
+import com.rohan90.majdoor.executor.operators.OperatorType;
 
-import javax.swing.text.html.parser.Entity;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,15 +48,34 @@ public class TaskDTO {
         dto.setStatus(entity.getStatus());
         dto.setExecutedByNodeId(entity.getExecutedByNodeId());
         dto.setLastExecuted(entity.getLastExecuted());
+        parseAndSetOperator(dto, entity);
+        dto.setScheduleMeta(ScheduleMetaDTO.transformToDTO(entity.getSchedule()));
+        dto.setCreatedBy(UserDTO.transformToDTO(entity.getCreatedBy()));
+        return dto;
+    }
+
+    private static void parseAndSetOperator(TaskDTO dto, Task entity) {
         try {
-            dto.setOperator(new ObjectMapper().readValue(entity.getOperator(), TaskOperatorDTO.class));
+            String operator = entity.getOperator();
+            TaskOperatorDTO operatorDTO = new ObjectMapper().readValue(entity.getOperator(), TaskOperatorDTO.class);
+
+            switch (operatorDTO.getType()) {
+                case PRINT:
+                    //do nothing
+                    break;
+                case SMS:
+                    operatorDTO = new ObjectMapper().readValue(operator, new TypeReference<TaskOperatorDTO<SmsOperatorPayload>>() {});
+                    break;
+                default:
+                    throw new RuntimeException("unknown operator encounterd");
+            }
+
+            dto.setOperator(operatorDTO);
+
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException("some thing happened while parsing operator for rest-response");
         }
-        dto.setScheduleMeta(ScheduleMetaDTO.transformToDTO(entity.getSchedule()));
-        dto.setCreatedBy(UserDTO.transformToDTO(entity.getCreatedBy()));
-        return dto;
     }
 
     public static List<TaskDTO> transformToDTOs(List<Task> entitites) {
