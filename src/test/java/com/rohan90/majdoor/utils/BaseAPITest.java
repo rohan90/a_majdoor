@@ -3,6 +3,7 @@ package com.rohan90.majdoor.utils;
 import com.rohan90.majdoor.api.ApiConstants;
 import io.restassured.RestAssured;
 import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -38,5 +39,12 @@ public class BaseAPITest {
         RestAssured.basePath = basePath;
         RestAssured.baseURI = baseHost;
 
+    }
+
+    @Test
+    public void test(){
+        //dummy test to prevent
+        //initializationError »  No runnable methods
+        // todo figure out a way to prevent this or move BaseApi out of TestScope
     }
 }
