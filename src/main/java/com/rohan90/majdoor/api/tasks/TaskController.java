@@ -4,6 +4,7 @@ import com.rohan90.majdoor.api.ApiConstants;
 import com.rohan90.majdoor.api.common.RestResponse;
 import com.rohan90.majdoor.api.tasks.domain.dtos.CreateTaskDTO;
 import com.rohan90.majdoor.api.tasks.domain.dtos.TaskDTO;
+import com.rohan90.majdoor.api.tasks.domain.dtos.TaskDashboardDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,5 +47,19 @@ public class TaskController {
         LOG.info("Received get tasks request");
         List<TaskDTO> tasks = service.get();
         return RestResponse.ok(tasks);
+    }
+
+    /**
+     * Get all tasks in the system
+     * and respond with dashboard payload
+     * ie {@link TaskDashboardDTO}
+     *
+     * @return List<Task> {@link TaskDTO}
+     */
+    @GetMapping(ApiConstants.Tasks.DASHBOARD)
+    public RestResponse<TaskDashboardDTO> getDashboard() {
+        LOG.info("Received get tasks request");
+        TaskDashboardDTO data = service.getDashboard();
+        return RestResponse.ok(data);
     }
 }

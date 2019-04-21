@@ -49,6 +49,8 @@ public class SchedulerTest extends BaseAPITest {
     @Test
     public void shouldBeAbleToSchedule_ImmediateTasks() {
 
+        //setup:
+        //creating 10 tasks
         int taskCount = 10;
         for (int i = 0; i < taskCount; i++) {
             Response response = RestWrapper
@@ -58,13 +60,16 @@ public class SchedulerTest extends BaseAPITest {
             Assert.assertEquals(201, response.getStatusCode());
         }
 
+        //execution:
+        //preparing and starting the scheduler for single thread poolsizem with polldelay 5 secs
         scheduler.identity("test-scheduler");
         scheduler.configure(1, TimeUnit.SECONDS.toMillis(5), dbClient, cacheClient);
         scheduler.start();
 
-
+        //waiting on executions to complete (nearly)
         sleep(TimeUnit.SECONDS.toMillis(15));
 
+        //asserts
         List<TaskDTO> pendingTasks = dbClient.getPendingTasks();
         Assert.assertTrue(pendingTasks.isEmpty());
         Assert.assertTrue(cacheClient.count() == 0);
@@ -73,6 +78,8 @@ public class SchedulerTest extends BaseAPITest {
     @Test
     public void shouldBeAbleToSchedule_ImmediateTasks_InParallel() {
 
+        //setup:
+        //creating 10 tasks
         int taskCount = 10;
         for (int i = 0; i < taskCount; i++) {
             Response response = RestWrapper
@@ -82,13 +89,16 @@ public class SchedulerTest extends BaseAPITest {
             Assert.assertEquals(201, response.getStatusCode());
         }
 
+        //execution:
+        //preparing and starting the scheduler for 2 thread poolsize & with polldelay 5 secs
         scheduler.identity("test-scheduler");
         scheduler.configure(2, TimeUnit.SECONDS.toMillis(5), dbClient, cacheClient);
         scheduler.start();
 
-
+        //waiting on executions to complete (nearly)
         sleep(TimeUnit.SECONDS.toMillis(15));
 
+        //asserts
         List<TaskDTO> pendingTasks = dbClient.getPendingTasks();
         Assert.assertTrue(pendingTasks.isEmpty());
         Assert.assertTrue(cacheClient.count() == 0);
@@ -97,7 +107,10 @@ public class SchedulerTest extends BaseAPITest {
 
     @Test
     public void shouldBeAbleToSchedule_FutureTasks() {
-
+        //setup:
+        //creating 2 tasks
+        // 1. Immediate Task
+        // 2. Future Task , will be scheduled for 10 seconds later
         CreateTaskDTO immediateTaskPayload = MockData.getCreateTaskDTO();
         Response response = RestWrapper
                 .given()
@@ -113,13 +126,16 @@ public class SchedulerTest extends BaseAPITest {
                 .post(ApiConstants.Tasks.CREATE);
         Assert.assertEquals(201, response.getStatusCode());
 
+        //execution:
+        //preparing and starting the scheduler for 1 thread poolsize & with polldelay 5 secs
         scheduler.identity("test-scheduler");
         scheduler.configure(1, TimeUnit.SECONDS.toMillis(5), dbClient, cacheClient);
         scheduler.start();
 
-
+        //waiting on executions to complete (nearly)
         sleep(TimeUnit.SECONDS.toMillis(15));
 
+        //asserts
         List<TaskDTO> pendingTasks = dbClient.getPendingTasks();
         Assert.assertTrue(pendingTasks.isEmpty());
         Assert.assertTrue(cacheClient.count() == 0);

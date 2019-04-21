@@ -23,7 +23,9 @@ public class ApiConstants {
 
         public static final String BASE = "/tasks";
         public static final String INDEX = "/";
+        public static final String DASHBOARD = "/dashboard";
         public static final String CREATE = BASE + INDEX;
         public static final String GET_ALL = BASE + INDEX;
+        public static final String GET_DASHBOARD = BASE+DASHBOARD;
     }
 }
