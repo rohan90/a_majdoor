@@ -2,7 +2,8 @@ package com.rohan90.majdoor.scheduler;
 
 import com.rohan90.majdoor.api.tasks.domain.dtos.TaskDTO;
 import com.rohan90.majdoor.api.tasks.domain.models.ScheduleType;
-import com.rohan90.majdoor.db.IDBClient;
+import com.rohan90.majdoor.db.in_memory.DataCache;
+import com.rohan90.majdoor.db.persistence.IDBClient;
 import com.rohan90.majdoor.executor.FutureTaskRunner;
 import com.rohan90.majdoor.executor.ImmediateTaskRunner;
 import org.slf4j.Logger;
@@ -30,8 +31,8 @@ public class SchedulerImpl extends BaseScheduler implements IScheduler {
 
 
     @Override
-    public void configure(int parralellism, long pollDelay, IDBClient dbClient) {
-        poolSize = parralellism;
+    public void configure(int parallelism, long pollDelay, IDBClient dbClient) {
+        poolSize = parallelism;
         this.pollDelay = pollDelay;
         this.dbClient = dbClient;
     }
@@ -47,7 +48,9 @@ public class SchedulerImpl extends BaseScheduler implements IScheduler {
         poller = new DataPoller(this, dbClient, pollDelay);
         poller.setName(name + "-poller");
         poller.start();
+
         executor = Executors.newScheduledThreadPool(poolSize);
+
         LOG.info("started scheduler {}, time is ", this.name, new Date());
 
     }
@@ -56,7 +59,10 @@ public class SchedulerImpl extends BaseScheduler implements IScheduler {
     public void stop() {
         poller.stopPolling();
         poller.interrupt();
+
         executor.shutdown();
+
+        DataCache.clear();
     }
 
     @Override
@@ -68,12 +74,20 @@ public class SchedulerImpl extends BaseScheduler implements IScheduler {
         List<TaskDTO> tasks = poller.getTasks();
 
         tasks.forEach(t -> {
-            if (ScheduleType.IMMEDIATE.equals(t.getScheduleMeta().getType()))
-                executor.schedule(new ImmediateTaskRunner(t), 1, TimeUnit.SECONDS);
-            else {
-                long delay = TaskDTO.getDelayInMillis(t.getScheduleMeta().getValue());
-                executor.schedule(new FutureTaskRunner(t), delay, TimeUnit.SECONDS);
+            if (!DataCache.contains(String.valueOf(t.getId()))) {
+
+                if (ScheduleType.IMMEDIATE.equals(t.getScheduleMeta().getType())) {
+                    executor.schedule(new ImmediateTaskRunner(t), 1, TimeUnit.SECONDS);
+                } else {
+                    long delay = TaskDTO.getDelayInMillis(t.getScheduleMeta().getValue());
+                    executor.schedule(new FutureTaskRunner(t), delay, TimeUnit.SECONDS);
+                }
+
+                DataCache.put(String.valueOf(t.getId()), t);
+            } else {
+                LOG.info("task with id {}, name- {}, already scheduled/under process", t.getId(), t.getName());
             }
+
         });
     }
 }

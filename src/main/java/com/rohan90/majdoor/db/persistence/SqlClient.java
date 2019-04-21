@@ -1,4 +1,4 @@
-package com.rohan90.majdoor.db;
+package com.rohan90.majdoor.db.persistence;
 
 import com.rohan90.majdoor.api.tasks.ITaskRepository;
 import com.rohan90.majdoor.api.tasks.domain.dtos.TaskDTO;
@@ -16,7 +16,7 @@ public class SqlClient implements IDBClient {
     ITaskRepository repository;
 
     @Override
-    public List<TaskDTO> getTasks() {
+    public List<TaskDTO> getPendingTasks() {
         List<TaskStatus> taskStatuses = Arrays.asList(TaskStatus.CREATED);
         return TaskDTO.transformToDTOs(repository.findByStatusIn(taskStatuses));
     }

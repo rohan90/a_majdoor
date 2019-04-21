@@ -6,7 +6,7 @@ import com.rohan90.majdoor.api.tasks.domain.dtos.CreateTaskDTO;
 import com.rohan90.majdoor.api.tasks.domain.dtos.ScheduleMetaDTO;
 import com.rohan90.majdoor.api.tasks.domain.models.ScheduleType;
 import com.rohan90.majdoor.api.utils.rest.RestWrapper;
-import com.rohan90.majdoor.db.SqlClient;
+import com.rohan90.majdoor.db.persistence.SqlClient;
 import com.rohan90.majdoor.scheduler.SchedulerImpl;
 import com.rohan90.majdoor.utils.BaseAPITest;
 import com.rohan90.majdoor.utils.MockData;
@@ -92,7 +92,7 @@ public class SchedulerTest extends BaseAPITest {
         Assert.assertEquals(201, response.getStatusCode());
 
         CreateTaskDTO futureTaskPayload = MockData.getCreateTaskDTO(); //a tasks scheduled for ten seconds later
-        futureTaskPayload.setScheduleMeta(new ScheduleMetaDTO(ScheduleType.FUTURE, "7"));
+        futureTaskPayload.setScheduleMeta(new ScheduleMetaDTO(ScheduleType.FUTURE, String.valueOf(5)));
         response = RestWrapper
                 .given()
                 .body(futureTaskPayload)
@@ -100,7 +100,7 @@ public class SchedulerTest extends BaseAPITest {
         Assert.assertEquals(201, response.getStatusCode());
 
         scheduler.identity("test-scheduler");
-        scheduler.configure(1, TimeUnit.SECONDS.toMillis(30), dbClient);
+        scheduler.configure(1, TimeUnit.SECONDS.toMillis(5), dbClient);
         scheduler.start();
 
 
