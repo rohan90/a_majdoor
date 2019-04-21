@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Component
-public class SqlClient implements IDBClient {
+public class SqlClient implements IDbClient {
 
     @Autowired
     ITaskRepository repository;

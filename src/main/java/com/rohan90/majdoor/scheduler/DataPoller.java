@@ -1,6 +1,6 @@
 package com.rohan90.majdoor.scheduler;
 
-import com.rohan90.majdoor.db.persistence.IDBClient;
+import com.rohan90.majdoor.db.persistence.IDbClient;
 
 import java.util.List;
 
@@ -8,13 +8,13 @@ public class DataPoller<T> extends Thread {
 
     private List<T> data;
 
-    public DataPoller(IScheduler scheduler, IDBClient idbClient, long pollDelay) {
+    public DataPoller(IScheduler scheduler, IDbClient idbClient, long pollDelay) {
         this.delay = pollDelay;
-        this.idbClient = idbClient;
+        this.dbClient = idbClient;
         this.scheduler = scheduler;
     }
 
-    IDBClient idbClient;
+    IDbClient dbClient;
 
     private long delay;
     private boolean stopped;
@@ -27,7 +27,7 @@ public class DataPoller<T> extends Thread {
                 if (interrupted())
                     return;
 
-                data = (List<T>) idbClient.getPendingTasks();
+                data = (List<T>) dbClient.getPendingTasks();
                 scheduler.runTasks();
                 sleep(delay);
             }
@@ -36,12 +36,14 @@ public class DataPoller<T> extends Thread {
         }
     }
 
+    //this should be a stream, but for now keeping it simple
     public List<T> getTasks() {
         return data;
     }
 
     public void stopPolling() {
         this.stopped = true;
+        interrupt();
     }
 
 

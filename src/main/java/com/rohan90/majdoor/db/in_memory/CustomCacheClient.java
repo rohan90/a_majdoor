@@ -1,25 +1,32 @@
 package com.rohan90.majdoor.db.in_memory;
 
+import org.springframework.stereotype.Component;
+
 import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-public class DataCache {
+/**
+ * For now a datacache held by the service,
+ * this should ideally be an external service
+ */
+@Component
+public class CustomCacheClient implements ICacheClient {
     static Map<String, Object> cache = Collections.synchronizedMap(new WeakHashMap<String, Object>());
 
-    public static Object get(String key) {
+    public Object get(String key) {
         return cache.get(key);
     }
 
-    public static void put(String key, Object value) {
+    public void put(String key, Object value) {
         cache.put(key, value);
     }
 
-    public static void clear() {
+    public void clear() {
         cache.clear();
     }
 
-    public static boolean contains(String key) {
+    public boolean contains(String key) {
         return cache.containsKey(key);
     }
 }

@@ -6,6 +6,7 @@ import com.rohan90.majdoor.api.tasks.domain.dtos.CreateTaskDTO;
 import com.rohan90.majdoor.api.tasks.domain.dtos.ScheduleMetaDTO;
 import com.rohan90.majdoor.api.tasks.domain.models.ScheduleType;
 import com.rohan90.majdoor.api.utils.rest.RestWrapper;
+import com.rohan90.majdoor.db.in_memory.CustomCacheClient;
 import com.rohan90.majdoor.db.persistence.SqlClient;
 import com.rohan90.majdoor.scheduler.SchedulerImpl;
 import com.rohan90.majdoor.utils.BaseAPITest;
@@ -30,6 +31,9 @@ public class SchedulerTest extends BaseAPITest {
     @Autowired
     SqlClient dbClient;
 
+    @Autowired
+    CustomCacheClient cacheClient;
+
     @Before
     public void setUp() {
     }
@@ -53,7 +57,7 @@ public class SchedulerTest extends BaseAPITest {
         }
 
         scheduler.identity("test-scheduler");
-        scheduler.configure(1, TimeUnit.SECONDS.toMillis(5), dbClient);
+        scheduler.configure(1, TimeUnit.SECONDS.toMillis(5), dbClient, cacheClient);
         scheduler.start();
 
 
@@ -73,7 +77,7 @@ public class SchedulerTest extends BaseAPITest {
         }
 
         scheduler.identity("test-scheduler");
-        scheduler.configure(2, TimeUnit.SECONDS.toMillis(5), dbClient);
+        scheduler.configure(2, TimeUnit.SECONDS.toMillis(5), dbClient, cacheClient);
         scheduler.start();
 
 
@@ -100,7 +104,7 @@ public class SchedulerTest extends BaseAPITest {
         Assert.assertEquals(201, response.getStatusCode());
 
         scheduler.identity("test-scheduler");
-        scheduler.configure(1, TimeUnit.SECONDS.toMillis(5), dbClient);
+        scheduler.configure(1, TimeUnit.SECONDS.toMillis(5), dbClient, cacheClient);
         scheduler.start();
 
 
