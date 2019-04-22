@@ -20,8 +20,8 @@ An attempt at a distributed task scheduler.
 5. *.properties file
     - changing no of nodes, pollDelay, poolSize for schedulers.
 6. Tests
-    0. Unit tests
-    1. integration tests
+    1. Unit tests
+    2. integration tests
         - api
         - scheduler
     2. sanity test
