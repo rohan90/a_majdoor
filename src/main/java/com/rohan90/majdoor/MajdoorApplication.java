@@ -30,7 +30,7 @@ public class MajdoorApplication {
 class AppStartupRunner implements ApplicationRunner {
     private Logger LOG = LoggerFactory.getLogger(this.getClass());
 
-    private @Autowired
+    @Autowired
     AutowireCapableBeanFactory beanFactory;
 
     @Autowired
@@ -41,9 +41,12 @@ class AppStartupRunner implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
+        if (isTestEnvironment())
+            return;
+
         LOG.info("Started application and now intializing schedulers...");
 
-        if (!config.isValid() && !isTestEnvironment()) {
+        if (!config.isValid()) {
             LOG.info("Failed to start application please set properties for majdoor...");
             throw new RuntimeException("Please provide valid scheduler details in properties file eg, nodes,parrelism,pollDelay");
         }
@@ -59,7 +62,7 @@ class AppStartupRunner implements ApplicationRunner {
     }
 
     //dont like this, but my test environment was requesting profile for scheduler setup
-    //which i did not want to do as i want to create scenarious for my scheduler.
+    //which i did not want to do as i want to create scenarios for my scheduler.
     //for now doing it this way
     private boolean isTestEnvironment() {
         return activeProfile.equalsIgnoreCase("test");

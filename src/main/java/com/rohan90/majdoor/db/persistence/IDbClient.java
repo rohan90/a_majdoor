@@ -16,5 +16,11 @@ public interface IDbClient {
      */
     List<TaskDTO> getPendingTasks();
 
+    /**
+     * used for updating the status of a task by taskId
+     *
+     * @param status
+     * @param taskId
+     */
     void updateTaskStatus(TaskStatus status, Long taskId);
 }

@@ -1,5 +1,6 @@
 package com.rohan90.majdoor.scheduler;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.rohan90.majdoor.api.tasks.domain.dtos.TaskDTO;
 import com.rohan90.majdoor.api.tasks.domain.models.ScheduleType;
 import com.rohan90.majdoor.db.in_memory.ICacheClient;
@@ -39,15 +40,6 @@ public class SchedulerImpl implements IScheduler {
         this.poolSize = parallelism;
         this.pollDelay = pollDelay;
     }
-
-    @Override
-    public void configure(int parallelism, long pollDelay, IDbClient dbClient, ICacheClient cacheClient) {
-        this.poolSize = parallelism;
-        this.pollDelay = pollDelay;
-        this.dbClient = dbClient;
-        this.cacheClient = cacheClient;
-    }
-
 
     @Override
     public void identity(String name) {
@@ -111,5 +103,21 @@ public class SchedulerImpl implements IScheduler {
             }
 
         });
+    }
+
+    /**
+     *  Used only during the tests.
+     * @param parallelism
+     * @param pollDelay
+     * @param dbClient
+     * @param cacheClient
+     */
+
+    @VisibleForTesting
+    public void configure(int parallelism, long pollDelay, IDbClient dbClient, ICacheClient cacheClient) {
+        this.poolSize = parallelism;
+        this.pollDelay = pollDelay;
+        this.dbClient = dbClient;
+        this.cacheClient = cacheClient;
     }
 }
