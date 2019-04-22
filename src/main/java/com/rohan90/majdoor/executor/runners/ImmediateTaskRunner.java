@@ -24,12 +24,12 @@ public class ImmediateTaskRunner extends TaskRunner {
             LOG.info("\nexecuting task with Id = {} - Name = {} , at time {}", task.getId(), task.getName(), new Date());
             Operator operator = OperatorFactory.get(task.getOperator());
             operator.execute();
-            scheduler.updateTask(new TaskUpdateStatusEvent(this, scheduler, TaskStatus.COMPLETED, task));
+            scheduler.updateTask(new TaskUpdateStatusEvent(this, TaskStatus.COMPLETED, task));
 
         } catch (Exception e) {
             e.printStackTrace();
             LOG.info("Error executing task with Id = {} - Name =  {} , at time {}", task.getId(), task.getName(), new Date());
-            scheduler.updateTask(new TaskUpdateStatusEvent(this, scheduler, TaskStatus.FAILED, task));
+            scheduler.updateTask(new TaskUpdateStatusEvent(this, TaskStatus.FAILED, task));
         }
     }
 

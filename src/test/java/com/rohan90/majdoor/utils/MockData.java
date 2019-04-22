@@ -4,6 +4,9 @@ import com.rohan90.majdoor.api.tasks.domain.dtos.*;
 import com.rohan90.majdoor.api.tasks.domain.models.ScheduleType;
 import com.rohan90.majdoor.executor.operators.OperatorType;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MockData {
     public static CreateTaskDTO getCreateTaskDTO() {
         long timestamp = System.currentTimeMillis();
@@ -20,6 +23,25 @@ public class MockData {
         TaskOperatorDTO data = new TaskOperatorDTO();
         data.setType(OperatorType.SMS);
         data.setValue(new SmsOperatorPayload("Some message","99999999"));
+        return data;
+    }
+
+    public static List<TaskDTO> getTaskDTOs(ScheduleType type, int count) {
+        List<TaskDTO> data = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            data.add(getTaskDTO(type));
+        }
+        return data;
+    }
+
+    private static TaskDTO getTaskDTO(ScheduleType type) {
+        TaskDTO data = new TaskDTO();
+        data.setId(100);
+        data.setName("Mock name");
+        data.setDescription("Mock description");
+        data.setScheduleMeta(new ScheduleMetaDTO(type,"1"));
+        data.setOperator(getSmsOperatorDTO());
+        //for now dont need to set the other variables
         return data;
     }
 }

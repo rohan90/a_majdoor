@@ -20,6 +20,7 @@ An attempt at a distributed task scheduler.
 5. *.properties file
     - changing no of nodes, pollDelay, poolSize for schedulers.
 6. Tests
+    0. Unit tests
     1. integration tests
         - api
         - scheduler
@@ -29,7 +30,7 @@ An attempt at a distributed task scheduler.
 #### todos
 1. possibly attach a real sql instance instead of h2-console (in memory, very lazy, just need to implement spring jdbc for staging/prod profile)
 2. master <-> child task. (for now theirs just one task template, no master/child)
-3. Unit tests for other classes.
+3. Unit tests for other classes. (right now only for SchedulerImpl exists)
 
 #### known bugs/shortcomings
 1. Datacache ie task pool is inmemory and held by the service instance.
